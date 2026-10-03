@@ -1,4 +1,4 @@
-"""v2 即時查詢引擎：查詢當下才下載「目標標的」指定區間的股價與除權息資料。
+"""即時查詢引擎：查詢當下才下載「目標標的」指定區間的股價與除權息資料。
 
 資料來源 (每檔每類只需 1 次 API 呼叫，不再逐月抓):
 - 股價 (未還原)        : FinMind TaiwanStockPrice
@@ -10,13 +10,13 @@
 
 若 FinMind 股價失敗 (例如限流)，自動改用 TWSE STOCK_DAY / TPEX tradingStock 逐月抓 (較慢)。
 
-快取 (data_v2/cache/{code}.json)：已下載過的區間不再重抓，只補缺口；
+快取 (userdata/cache/{code}.json)：已下載過的區間不再重抓，只補缺口；
 事件資料每天最多重新檢查一次。
 
 後復權公式與 v1 相同：factor *= 除權息前收盤 / 除權息參考價。
 
 FinMind 免費額度：未登入約 300 次/小時。若常查詢，可在
-data_v2/finmind_token.txt 放入 FinMind token (或設環境變數 FINMIND_TOKEN) 提高額度。
+userdata/finmind_token.txt 放入 FinMind token (或設環境變數 FINMIND_TOKEN) 提高額度。
 """
 from __future__ import annotations
 import os
@@ -29,10 +29,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import session, load_json, save_json, fmt_iso, ROOT, MANUAL_EVENTS_PATH
 import fetch_prices
 
-DATA_V2 = ROOT / "data_v2"
-CACHE_DIR = DATA_V2 / "cache"
-STOCK_LIST_PATH = DATA_V2 / "stock_list.json"
-TOKEN_PATH = DATA_V2 / "finmind_token.txt"
+USER_DIR = ROOT / "userdata"
+CACHE_DIR = USER_DIR / "cache"
+STOCK_LIST_PATH = USER_DIR / "stock_list.json"
+TOKEN_PATH = USER_DIR / "finmind_token.txt"
 
 FINMIND_URL = "https://api.finmindtrade.com/api/v4/data"
 EARLIEST = date(2000, 1, 1)

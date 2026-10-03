@@ -1,4 +1,4 @@
-﻿台股總報酬比較 v2 ─ 使用說明
+﻿台股總報酬比較 ─ 使用說明
 ==================================================
 
 這是什麼？
@@ -16,7 +16,7 @@
      「Add python.exe to PATH」，再按 Install Now。
      (沒勾到的話，請重新執行安裝程式 → Modify → 勾選後重裝)
 
-2. 把收到的 v2 資料夾 (或 zip 解壓縮後) 放在任意位置，例如桌面。
+2. 把收到的程式資料夾 (zip 解壓縮後) 放在任意位置，例如桌面。
    ※ 請先「解壓縮」再執行，不要直接在 zip 裡面點開。
 
 3. 需要的套件 (requests) 第一次啟動時會自動安裝，不用另外處理。
@@ -25,7 +25,7 @@
 二、啟動
 --------------------------------------------------
 Windows：
-  雙擊 start_v2.bat
+  雙擊 start.bat
   → 會出現黑色視窗，並自動開啟瀏覽器 (http://localhost:8893/)
   → 使用期間「不要關閉黑色視窗」；用完直接關掉黑色視窗即可結束。
 
@@ -35,25 +35,25 @@ Windows：
 Mac：(第一次)
   1. 安裝 Python：到 https://www.python.org/downloads/ 按黃色
      「Download Python 3.x.x」，下載 .pkg 後雙擊，一路「繼續」安裝完成。
-  2. 解壓縮：在「下載項目」雙擊 zip，會出現 v2 資料夾
-     (可先把 v2 拖到「文件」或桌面)。
+  2. 解壓縮：在「下載項目」雙擊 zip，會出現程式資料夾
+     (可先把它拖到「文件」或桌面)。
   3. 開終端機：按 command + 空白鍵，輸入 terminal (或「終端機」)，按 return。
   4. 進到資料夾：在終端機輸入 cd 加一個空白 (先不要按 return)，
-     再從 Finder 把 v2 資料夾「拖進」終端機視窗，路徑會自動填上，然後按 return。
+     再從 Finder 把程式資料夾「拖進」終端機視窗，路徑會自動填上，然後按 return。
   5. 安裝套件 (只需一次)，輸入後按 return：
          python3 -m pip install requests
   6. 啟動，輸入後按 return，瀏覽器會自動開啟：
-         python3 server_v2.py
+         python3 server.py
   使用期間不要關閉終端機；結束時在終端機按 control + C，或直接關閉視窗。
 
 Mac：(之後每次) 重複步驟 3、4、6 即可。
 
 Mac：(選用) 改成雙擊啟動
-  在步驟 4 之後輸入：  chmod +x start_v2_mac.command
-  之後在 Finder 對 start_v2_mac.command「按右鍵 → 打開 → 打開」(第一次要這樣)，
+  在步驟 4 之後輸入：  chmod +x start_mac.command
+  之後在 Finder 對 start_mac.command「按右鍵 → 打開 → 打開」(第一次要這樣)，
   以後直接雙擊即可。
 
-※ 必須用上述方式啟動。直接雙擊 index_v2.html 是無法使用的。
+※ 必須用上述方式啟動。直接雙擊 index.html 是無法使用的。
 
 
 三、怎麼用
@@ -80,10 +80,10 @@ Mac：(選用) 改成雙擊啟動
   之後只補新日期，一般使用不會超過。若出現「FinMind 錯誤 (402)」或
   「上限」字樣，表示額度用完，等一小時後再查即可。
   常大量查詢者，可到 https://finmindtrade.com/ 免費註冊取得 token，
-  存成文字檔 data_v2\finmind_token.txt (只放 token 一行) 即可提高額度。
+  存成文字檔 userdata\finmind_token.txt (只放 token 一行) 即可提高額度。
 ‧ 程式只在自己電腦上執行 (localhost)，不會上傳任何資料；
-  查詢歷史存在 data_v2\history.json，下載的資料快取在 data_v2\cache\。
-  想清除紀錄，關閉程式後刪除 data_v2 資料夾即可。
+  查詢歷史存在 userdata\history.json，下載的資料快取在 userdata\cache\。
+  想清除紀錄，關閉程式後刪除 userdata 資料夾即可。
 ‧ 含息報酬採「股利全數再投入、現增全數認購」的理論值，
   未計手續費、交易稅、股利所得稅與二代健保補充保費，
   實際報酬會略低。結果僅供參考，不構成投資建議。
@@ -92,7 +92,7 @@ Mac：(選用) 改成雙擊啟動
 
 五、常見問題
 --------------------------------------------------
-Q: 雙擊 start_v2.bat 出現 "Python not found"
+Q: 雙擊 start.bat 出現 "Python not found"
 A: Python 沒安裝或安裝時沒勾 Add to PATH，請見「一、安裝」。
 
 Q: 出現 pip / requests 安裝失敗

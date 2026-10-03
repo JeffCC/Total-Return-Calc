@@ -21,5 +21,5 @@ echo.
 echo Starting... the browser will open automatically.
 echo Keep this window open while using. Close it to stop.
 echo.
-%PY% -X utf8 server_v2.py
+%PY% -X utf8 server.py
 pause

@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>台股總報酬比較 v2 (即時查詢)</title>
+<title>台股總報酬比較 (即時查詢)</title>
 <link rel="stylesheet" href="css/style.css" />
-<link rel="stylesheet" href="css/style_v2.css" />
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 </head>
 <body>
 <header>
-  <h1>台股總報酬比較 v2<span class="sub">即時下載 · 含息 / 含配股 / 含分割 / 含減資</span></h1>
+  <h1>台股總報酬比較<span class="sub">即時下載 · 含息 / 含配股 / 含分割 / 含減資</span></h1>
   <div class="updated" id="status">就緒</div>
 </header>
 
@@ -76,20 +75,25 @@
 <section class="history">
   <div class="history-head">
     <h2>查詢歷史</h2>
-    <input id="history-filter" type="text" placeholder="篩選：代碼 / 名稱 / 備註…" />
+    <div class="history-tools">
+      <input id="history-filter" type="text" placeholder="篩選：代碼 / 名稱 / 備註…" />
+      <button id="hist-all" title="選取目前列表中所有「未命名、未釘選」的紀錄">全選 ALL</button>
+      <button id="hist-none">取消選取</button>
+      <button id="hist-clear" class="danger">清除選取</button>
+    </div>
   </div>
   <div id="history-pinned"></div>
   <div id="history-list"></div>
 </section>
 
 <footer>
-  <small>查詢時才即時下載該標的資料 (FinMind；股價失敗時改用 TWSE / TPEX 官方)，並快取於 data_v2/cache/。
+  <small>查詢時才即時下載該標的資料 (FinMind；股價失敗時改用 TWSE / TPEX 官方)，並快取於 userdata/cache/。
   含息計算採用後復權因子法 (factor = 除權息前收盤 / 除權息參考價)，涵蓋現金股利、股票股利、現金增資 (假設必認)、
-  股票分割與減資。歷史紀錄存於 data_v2/history.json。</small>
+  股票分割與減資。歷史紀錄存於 userdata/history.json。</small>
 </footer>
 
 <script src="js/calc.js"></script>
 <script src="js/chart.js"></script>
-<script src="js/main_v2.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// v2 主程式：查詢時才向本機 server_v2.py 下載資料，並記錄查詢歷史。
+// 主程式：查詢時才向本機 server.py 下載資料，並記錄查詢歷史。
 
 (async function () {
   const MAX_TICKERS = 10;
@@ -59,7 +59,7 @@
     statusEl.textContent = `${state.stocks.length} 檔可查詢`;
   } catch (e) {
     statusEl.textContent = "股票清單載入失敗";
-    setHint("無法連線到 server_v2.py：" + e.message + "（請用 python server_v2.py 啟動，不要直接開 html 檔）", "err");
+    setHint("無法連線到 server.py：" + e.message + "（請用 python server.py 或 start.bat 啟動，不要直接開 html 檔）", "err");
   }
 
   // ---------------------------------------------------------------- 搜尋
@@ -450,7 +450,9 @@
     const bench = (h.benchmarks || []).length ? `｜基準 ${h.benchmarks.join("、")}` : "";
     const res = (h.results || []).map(r =>
       `<span>${r.code}${r.isBench ? "(基準)" : ""} <b class="${cls(r.totalReturn)}">${fmtPct(r.totalReturn, 1)}</b></span>`).join("");
-    return `<div class="h-item ${h.pinned ? "pinned" : ""} ${h.id === state.currentHistId ? "current" : ""}" data-id="${h.id}">
+    const checked = selectedHist.has(h.id);
+    return `<div class="h-item ${h.pinned ? "pinned" : ""} ${h.label ? "named" : ""} ${h.id === state.currentHistId ? "current" : ""} ${checked ? "checked" : ""}" data-id="${h.id}">
+      <input type="checkbox" class="h-check" data-act="check" ${checked ? "checked" : ""} title="選取 (可批次清除)" />
       <span class="h-star" data-act="pin" title="${h.pinned ? "取消釘選" : "釘選 (常用組合，如：我的庫存)"}">★</span>
       <div class="h-main">
         <div class="h-title">${h.label ? `<span class="h-label">${escape(h.label)}</span>` : ""}${names}</div>
@@ -466,19 +468,67 @@
     </div>`;
   }
 
-  function renderHistory() {
+  // 批次選取：只記 id；紀錄被刪掉後自動剔除
+  const selectedHist = new Set();
+
+  function visibleHistory() {
     const f = $("history-filter").value.trim().toLowerCase();
     const match = h => !f || [h.label || "", ...h.codes, ...Object.values(h.names || {})]
       .some(s => String(s).toLowerCase().includes(f));
-    const items = state.history.filter(match);
-    const pinned = items.filter(h => h.pinned);
-    const rest = items.filter(h => !h.pinned);
-    $("history-pinned").innerHTML = pinned.length
-      ? `<div class="history-group-title">★ 釘選組合</div>` + pinned.map(historyItemHTML).join("") : "";
-    $("history-list").innerHTML = (pinned.length ? `<div class="history-group-title">最近查詢</div>` : "") +
-      (rest.length ? rest.map(historyItemHTML).join("")
-        : `<div class="h-empty">${state.history.length ? "沒有符合的紀錄" : "尚無查詢紀錄。查詢後會自動記錄在這裡，可按 ★ 釘選常用組合（例如自己的庫存）。"}</div>`);
+    return state.history.filter(match);
   }
+
+  function renderHistory() {
+    const alive = new Set(state.history.map(h => h.id));
+    for (const id of [...selectedHist]) if (!alive.has(id)) selectedHist.delete(id);
+
+    const items = visibleHistory();
+    const pinned = items.filter(h => h.pinned);
+    const named = items.filter(h => !h.pinned && h.label);
+    const rest = items.filter(h => !h.pinned && !h.label);
+    const group = (title, arr) => arr.length
+      ? `<div class="history-group-title">${title}</div>` + arr.map(historyItemHTML).join("") : "";
+    $("history-pinned").innerHTML = group("★ 釘選組合", pinned) + group("🏷 已命名", named);
+    $("history-list").innerHTML = ((pinned.length || named.length) && rest.length ? `<div class="history-group-title">最近查詢</div>` : "") +
+      (rest.length ? rest.map(historyItemHTML).join("")
+        : (pinned.length || named.length) ? "" :
+          `<div class="h-empty">${state.history.length ? "沒有符合的紀錄" : "尚無查詢紀錄。查詢後會自動記錄在這裡，可按 ★ 釘選常用組合（例如自己的庫存）。"}</div>`);
+    renderBulkBar();
+  }
+
+  function renderBulkBar() {
+    const n = selectedHist.size;
+    $("hist-clear").textContent = n ? `清除選取 (${n})` : "清除選取";
+    $("hist-clear").disabled = !n;
+    $("hist-none").disabled = !n;
+  }
+
+  // 全選：只選目前篩選下「未命名、未釘選」的紀錄；已命名 / 釘選的請手動勾選或個別刪除
+  $("hist-all").addEventListener("click", () => {
+    const targets = visibleHistory().filter(h => !h.label && !h.pinned);
+    targets.forEach(h => selectedHist.add(h.id));
+    renderHistory();
+    if (!targets.length) alert("沒有可全選的紀錄（已命名或釘選的紀錄不會被全選）");
+  });
+  $("hist-none").addEventListener("click", () => {
+    selectedHist.clear();
+    renderHistory();
+  });
+  $("hist-clear").addEventListener("click", async () => {
+    const ids = [...selectedHist];
+    if (!ids.length) return;
+    const protectedN = state.history.filter(h => selectedHist.has(h.id) && (h.label || h.pinned)).length;
+    const msg = `確定清除 ${ids.length} 筆查詢紀錄？此動作無法復原。` +
+      (protectedN ? `\n\n⚠ 其中 ${protectedN} 筆是已命名或釘選的紀錄（你手動勾選的）。` : "");
+    if (!confirm(msg)) return;
+    try {
+      state.history = (await api("/api/history/delete", { method: "POST", body: { ids } })).items;
+      selectedHist.clear();
+      renderHistory();
+    } catch (err) {
+      alert("清除失敗：" + err.message);
+    }
+  });
 
   function applyHistory(h) {
     state.selected = [...h.codes];
@@ -497,13 +547,17 @@
 
   document.querySelector(".history").addEventListener("click", async e => {
     const btn = e.target.closest("[data-act]");
-    if (!btn) return;
+    if (!btn || !btn.closest(".h-item")) return;
     const id = btn.closest(".h-item").dataset.id;
     const h = state.history.find(x => x.id === id);
     if (!h) return;
     const act = btn.dataset.act;
     try {
-      if (act === "rerun") {
+      if (act === "check") {
+        if (btn.checked) selectedHist.add(id); else selectedHist.delete(id);
+        btn.closest(".h-item").classList.toggle("checked", btn.checked);
+        renderBulkBar();
+      } else if (act === "rerun") {
         applyHistory(h);
         window.scrollTo({ top: 0, behavior: "smooth" });
         await run();

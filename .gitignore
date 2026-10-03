@@ -1,5 +1,5 @@
 # 個人資料：查詢歷史、下載快取、FinMind token
-data_v2/
+userdata/
 finmind_token.txt
 __pycache__/
 *.pyc

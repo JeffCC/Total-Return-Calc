@@ -13,10 +13,10 @@
 
 ## 啟動
 
-Windows 雙擊 `start_v2.bat`；Mac / 其他：
+Windows 雙擊 `start.bat`；Mac / 其他：
 
 ```bash
-python server_v2.py
+python server.py
 ```
 
 會自動開啟 http://localhost:8893/ 。（必須透過 server 開啟，不能直接點 html 檔。）
@@ -36,20 +36,20 @@ python server_v2.py
 
 | 檔案 | 說明 |
 |---|---|
-| `server_v2.py` | 本機伺服器 (只需 `requests` 套件)；port 被佔用會自動改用下一個 |
-| `scripts/ondemand_v2.py` | 即時下載 + 快取 + 後復權計算；也可命令列測試：`python scripts/ondemand_v2.py 2330 --start 2024-01-01` |
-| `index_v2.html` / `js/main_v2.js` / `css/style_v2.css` | 前端 + `js/calc.js`、`js/chart.js` |
-| `start_v2.bat` / `start_v2_mac.command` | Windows / Mac 一鍵啟動 |
-| `data_v2/cache/{code}.json` | 已下載資料快取，查過的區間不再重抓 |
-| `data_v2/history.json` | 查詢歷史 |
-| `data_v2/stock_list.json` | 股票/ETF 清單 (每 7 天更新) |
+| `server.py` | 本機伺服器 (只需 `requests` 套件)；port 被佔用會自動改用下一個 |
+| `scripts/ondemand.py` | 即時下載 + 快取 + 後復權計算；也可命令列測試：`python scripts/ondemand.py 2330 --start 2024-01-01` |
+| `index.html` / `js/main.js` / `js/calc.js` / `js/chart.js` / `css/style.css` | 前端 |
+| `start.bat` / `start_mac.command` | Windows / Mac 一鍵啟動 |
+| `userdata/cache/{code}.json` | 已下載資料快取，查過的區間不再重抓 |
+| `userdata/history.json` | 查詢歷史 |
+| `userdata/stock_list.json` | 股票/ETF 清單 (每 7 天更新) |
 
 ## 資料來源
 
 全部來自 FinMind（每檔每類資料只要 1 次 API 呼叫）：股價 `TaiwanStockPrice`、除權息 `TaiwanStockDividendResult`（上市與上櫃都有）、分割 `TaiwanStockSplitPrice`、減資 `TaiwanStockCapitalReductionReferencePrice`、IR0001 `TaiwanStockTotalReturnIndex`。
 FinMind 股價失敗時自動改用 TWSE / TPEX 官方逐月下載（較慢）。`data/manual_events.json` 的人工事件仍會套用（若 API 已有相同分割則不重複）。
 
-**FinMind 免費額度**：未登入約每小時 300 次。單檔首次查詢約 4 次呼叫，之後只補新日期；事件每天最多檢查一次。若常查很多檔，可到 FinMind 註冊取得 token，存成 `data_v2/finmind_token.txt`（或設環境變數 `FINMIND_TOKEN`）提高額度。
+**FinMind 免費額度**：未登入約每小時 300 次。單檔首次查詢約 4 次呼叫，之後只補新日期；事件每天最多檢查一次。若常查很多檔，可到 FinMind 註冊取得 token，存成 `userdata/finmind_token.txt`（或設環境變數 `FINMIND_TOKEN`）提高額度。
 
 ## 計算方式
 
