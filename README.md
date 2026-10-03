@@ -3,7 +3,16 @@
 計算台股上市、上櫃股票與 ETF 指定期間的**含息總報酬**（含現金股利、股票股利、現金增資、分割、減資），最多 10 檔同時比較並繪圖。
 **查詢當下才下載「目標標的」指定區間**的股價與除權息資料（通常 1~3 秒），並自動記錄查詢歷史，可釘選常用組合（例如自己的庫存）。
 
-## 安裝
+## 免安裝：網頁版
+
+直接開啟 👉 **https://jeffcc.github.io/Total-Return-Calc/**（電腦、手機皆可）
+
+- 在你的瀏覽器裡直接向 FinMind 下載資料並計算，計算結果與本機版相同。
+- 查詢歷史、釘選、資料快取都只存在**你自己的瀏覽器**（不會上傳；換瀏覽器或清除瀏覽資料會消失）。
+- 使用 FinMind 免費額度（每小時約 300 次）；額度用完會提示，等約一小時即可。
+- 與本機版差異：FinMind 失敗時不會改用證交所下載、不能設定 token。
+
+## 安裝（本機版）
 
 1. 安裝 [Python 3.9+](https://www.python.org/downloads/)（Windows 安裝時勾選「Add python.exe to PATH」）
 2. 下載本專案：GitHub 頁面右上綠色「Code」→「Download ZIP」，解壓縮
@@ -38,7 +47,9 @@ python server.py
 |---|---|
 | `server.py` | 本機伺服器 (只需 `requests` 套件)；port 被佔用會自動改用下一個 |
 | `scripts/ondemand.py` | 即時下載 + 快取 + 後復權計算；也可命令列測試：`python scripts/ondemand.py 2330 --start 2024-01-01` |
-| `index.html` / `js/main.js` / `js/calc.js` / `js/chart.js` / `css/style.css` | 前端 |
+| `index.html` / `js/main.js` / `js/calc.js` / `js/chart.js` / `css/style.css` | 前端（本機版、網頁版共用；有 server.py 時自動走本機版） |
+| `js/browser_backend.js` | 網頁版引擎：在瀏覽器下載 + 計算，歷史存 localStorage、快取存 IndexedDB |
+| `js/config.js` | 網頁版設定（GoatCounter 訪客統計代碼） |
 | `start.bat` / `start_mac.command` | Windows / Mac 一鍵啟動 |
 | `userdata/cache/{code}.json` | 已下載資料快取，查過的區間不再重抓 |
 | `userdata/history.json` | 查詢歷史 |

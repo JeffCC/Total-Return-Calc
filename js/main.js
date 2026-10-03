@@ -1,4 +1,7 @@
-// 主程式：查詢時才向本機 server.py 下載資料，並記錄查詢歷史。
+// 主程式：查詢時才下載資料，並記錄查詢歷史。
+// 兩種模式自動切換：
+//   server  — 用 start.bat / server.py 啟動 (本機版，歷史存 userdata/)
+//   browser — GitHub Pages 網頁版，直接在瀏覽器向 FinMind 下載 (js/browser_backend.js)
 
 (async function () {
   const MAX_TICKERS = 10;
@@ -28,7 +31,14 @@
   Chart.init();
 
   // ---------------------------------------------------------------- API
+  let mode = "browser";
+  try {
+    const r = await fetch("/api/history", { cache: "no-store" });
+    if (r.ok && (r.headers.get("content-type") || "").includes("json")) mode = "server";
+  } catch { /* 沒有 server → 網頁版 */ }
+
   async function api(path, opts = {}) {
+    if (mode === "browser") return BrowserBackend.handle(path, opts);
     const res = await fetch(path, {
       headers: opts.body ? { "Content-Type": "application/json" } : {},
       ...opts,
@@ -36,8 +46,35 @@
     });
     let js;
     try { js = await res.json(); } catch { throw new Error(`伺服器回應錯誤 (${res.status})`); }
-    if (!res.ok) throw new Error(js.error || `HTTP ${res.status}`);
+    if (!res.ok) {
+      const err = new Error(js.error || `HTTP ${res.status}`);
+      err.quota = /額度已滿/.test(err.message);
+      throw err;
+    }
     return js;
+  }
+
+  function showNotice(msg) {
+    const el = $("notice");
+    el.textContent = msg || "";
+    el.classList.toggle("hidden", !msg);
+  }
+
+  // 網頁版：顯示模式說明、載入訪客統計 (js/config.js 有設定才會啟用)
+  $("footer-mode").textContent = mode === "server"
+    ? "本機版：資料快取於 userdata/cache/，查詢歷史存於 userdata/history.json。"
+    : "網頁版：資料快取與查詢歷史只存在你自己的瀏覽器裡（換瀏覽器或清除瀏覽資料就會消失），不會上傳。使用 FinMind 免費額度，每小時約 300 次。";
+  statusEl.dataset.mode = mode;
+  const gc = (window.SITE_CONFIG || {}).goatcounter;
+  if (mode === "browser" && gc) {
+    const sc = document.createElement("script");
+    sc.async = true;
+    sc.src = "https://gc.zgo.at/count.js";
+    sc.dataset.goatcounter = `https://${gc}.goatcounter.com/count`;
+    document.head.appendChild(sc);
+  }
+  function countEvent(name) {
+    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title: name, event: true }); } catch { /* 統計失敗不影響使用 */ }
   }
 
   function setHint(msg, cls = "") {
@@ -56,10 +93,11 @@
     const js = await api("/api/stocks");
     state.stocks = js.stocks;
     state.stocks.forEach(s => state.byCode.set(s.code, s));
-    statusEl.textContent = `${state.stocks.length} 檔可查詢`;
+    statusEl.textContent = `${mode === "server" ? "本機版" : "網頁版"} · ${state.stocks.length} 檔可查詢`;
   } catch (e) {
     statusEl.textContent = "股票清單載入失敗";
-    setHint("無法連線到 server.py：" + e.message + "（請用 python server.py 或 start.bat 啟動，不要直接開 html 檔）", "err");
+    if (e.quota) showNotice(e.message);
+    else setHint("股票清單載入失敗：" + e.message + "（仍可直接輸入代碼查詢）", "err");
   }
 
   // ---------------------------------------------------------------- 搜尋
@@ -261,7 +299,7 @@
           chipStatus[item.code + ":msg"] = e.message;
           renderChips(chipStatus);
         }
-        return { code: item.code, isBench: item.isBench, error: e.message };
+        return { code: item.code, isBench: item.isBench, error: e.message, quota: !!e.quota };
       }
     }));
 
@@ -271,6 +309,9 @@
 
     const ok = results.filter(r => !r.error && r.rows && r.rows.length >= 2);
     const errs = results.filter(r => r.error);
+    const quotaHit = errs.some(r => r.quota);
+    showNotice(quotaHit ? "⚠ " + BrowserBackend.QUOTA_MSG + "（已快取的標的仍可查詢）" : "");
+    if (results.some(r => !r.error)) countEvent("query");
     const downloaded = results.flatMap(r => (r.downloaded || []).map(x => `${r.code} ${x}`));
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
     let msg = `完成 (${secs}s)` + (downloaded.length ? `，新下載：${downloaded.length} 項` : "，全部使用快取");

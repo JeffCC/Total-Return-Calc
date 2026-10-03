@@ -10,9 +10,10 @@ const Chart = (() => {
 
   function render(seriesList) {
     // seriesList: [{name, data: [[d, pct]...], color}]
+    const narrow = chart.getWidth() < 600;  // 手機
     const option = {
       animation: false,
-      grid: { left: 60, right: 30, top: 50, bottom: 70 },
+      grid: narrow ? { left: 48, right: 12, top: 64, bottom: 70 } : { left: 60, right: 30, top: 50, bottom: 70 },
       tooltip: {
         trigger: "axis",
         axisPointer: { type: "cross" },
@@ -21,11 +22,11 @@ const Chart = (() => {
       legend: { top: 8, type: "scroll" },
       xAxis: {
         type: "time",
-        axisLabel: { formatter: "{yyyy}/{MM}/{dd}" },
+        axisLabel: { formatter: narrow ? "{yy}/{MM}" : "{yyyy}/{MM}/{dd}", hideOverlap: true },
       },
       yAxis: {
         type: "value",
-        name: "累積報酬 (%)",
+        name: narrow ? "" : "累積報酬 (%)",
         axisLabel: { formatter: "{value}%" },
         splitLine: { lineStyle: { type: "dashed", color: "#e5e7eb" } },
       },

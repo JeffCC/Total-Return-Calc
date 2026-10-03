@@ -89,6 +89,8 @@ def finmind(dataset: str, data_id: str | None = None, start: date | None = None,
         js = r.json()
     except Exception as e:
         raise FetchError(f"FinMind {dataset} 連線失敗：{e}")
+    if js.get("status") == 402 or r.status_code == 402 or "upper limit" in str(js.get("msg", "")).lower():
+        raise FetchError("FinMind 免費查詢額度已滿（每小時約 300 次），請等待約一小時後再查詢。")
     if js.get("status") != 200:
         raise FetchError(f"FinMind {dataset} 錯誤 ({js.get('status')})：{js.get('msg')}")
     return js.get("data", [])

@@ -180,3 +180,12 @@ button.primary:disabled { background: #93c5fd; cursor: wait; }
 }
 .sort-arrows i { font-style: normal; color: #cbd5e1; }
 .sort-arrows i.on { color: #2563eb; }
+
+/* ---------------- 額度 / 錯誤提示 ---------------- */
+.notice {
+  margin: 0 24px 12px; padding: 10px 14px; border-radius: 8px;
+  background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; font-weight: 600;
+}
+.notice.hidden { display: none; }
+footer a { color: #2563eb; }
+@media (max-width: 900px) { .notice { margin: 0 16px 12px; } }

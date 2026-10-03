@@ -54,6 +54,7 @@
   <button id="run" class="primary">查詢</button>
   <span id="hint" class="hint"></span>
 </section>
+<div id="notice" class="notice hidden"></div>
 
 <section class="chart-wrap">
   <div id="chart"></div>
@@ -87,12 +88,15 @@
 </section>
 
 <footer>
-  <small>查詢時才即時下載該標的資料 (FinMind；股價失敗時改用 TWSE / TPEX 官方)，並快取於 userdata/cache/。
+  <small>查詢時才即時下載該標的資料 (FinMind 公開資料)。
   含息計算採用後復權因子法 (factor = 除權息前收盤 / 除權息參考價)，涵蓋現金股利、股票股利、現金增資 (假設必認)、
-  股票分割與減資。歷史紀錄存於 userdata/history.json。</small>
+  股票分割與減資；未計手續費、稅負，結果僅供參考，不構成投資建議。<br><span id="footer-mode"></span>
+  原始碼：<a href="https://github.com/JeffCC/Total-Return-Calc" target="_blank" rel="noopener">github.com/JeffCC/Total-Return-Calc</a></small>
 </footer>
 
+<script src="js/config.js"></script>
 <script src="js/calc.js"></script>
+<script src="js/browser_backend.js"></script>
 <script src="js/chart.js"></script>
 <script src="js/main.js"></script>
 </body>
