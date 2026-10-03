@@ -1,0 +1,21 @@
+{
+  "_README": "人工補錄事件。格式：{ code: [ {date, prev_close, ref_price, type_label, note} ] }。factor = prev_close / ref_price。例如股票分割 1拆4：prev_close=4, ref_price=1。",
+  "0050": [
+    {
+      "date": "2025-06-19",
+      "prev_close": 4,
+      "ref_price": 1,
+      "type_label": "split",
+      "note": "元大台灣50 1拆4 股票分割（請依正式公告核對日期）"
+    }
+  ],
+  "00631L": [
+    {
+      "date": "2026-03-31",
+      "prev_close": 443.15,
+      "ref_price": 19.26,
+      "type_label": "split",
+      "note": "元大美債20正2 1拆23 股票分割"
+    }
+  ]
+}

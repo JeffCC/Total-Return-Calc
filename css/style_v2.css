@@ -1,0 +1,65 @@
+/* v2 追加樣式 (疊在 style.css 之上) */
+.controls { grid-template-columns: 2fr 1fr 1.6fr; }
+@media (max-width: 900px) {
+  .controls { grid-template-columns: 1fr; padding: 12px 16px; }
+  .chart-wrap, .summary, .history, .query-bar { padding-left: 16px !important; padding-right: 16px !important; }
+  .summary { overflow-x: auto; }
+}
+
+.query-bar { padding: 0 24px 12px; display: flex; align-items: center; gap: 12px; }
+button.primary {
+  padding: 8px 28px; font-size: 15px; font-weight: 600; cursor: pointer;
+  background: #2563eb; color: #fff; border: none; border-radius: 6px;
+}
+button.primary:hover { background: #1d4ed8; }
+button.primary:disabled { background: #93c5fd; cursor: wait; }
+.hint { color: #6b7280; font-size: 13px; }
+.hint.err { color: #dc2626; }
+.hint.dirty { color: #b45309; }
+
+.chip.loading { opacity: .6; }
+.chip.loading::after { content: "下載中…"; font-size: 11px; color: #64748b; }
+.chip.error { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+
+.ev-cell { cursor: help; text-decoration: underline dotted #9ca3af; }
+
+/* ---------------- 歷史 ---------------- */
+.history { padding: 0 24px 16px; }
+.history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.history-head h2 { font-size: 16px; margin: 0; color: #1f2937; }
+#history-filter { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; width: 260px; max-width: 50%; }
+.history-group-title { font-size: 12px; color: #6b7280; margin: 10px 0 6px; font-weight: 600; }
+.h-item {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 6px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+}
+.h-item.pinned { border-color: #fcd34d; background: #fffbeb; }
+.h-item.current { box-shadow: 0 0 0 2px #93c5fd; }
+.h-star { cursor: pointer; font-size: 18px; color: #d1d5db; user-select: none; }
+.h-item.pinned .h-star { color: #f59e0b; }
+.h-main { min-width: 0; }
+.h-title { font-weight: 600; color: #1f2937; }
+.h-title .h-label { color: #92400e; margin-right: 6px; }
+.h-meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+.h-results { font-size: 12px; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.h-results span b { font-weight: 600; }
+.h-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.h-actions button {
+  padding: 4px 10px; font-size: 12px; border: 1px solid #d1d5db; background: #fff;
+  border-radius: 4px; cursor: pointer;
+}
+.h-actions button:hover { background: #f3f4f6; }
+.h-actions button.rerun { border-color: #2563eb; color: #2563eb; }
+.h-empty { color: #9ca3af; font-size: 13px; padding: 8px 0; }
+
+/* ---------------- 表格排序 ---------------- */
+#summary-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+#summary-table th.sortable:hover { background: #eef2ff; }
+#summary-table th.sorted { color: #1d4ed8; }
+.sort-arrows {
+  display: inline-flex; flex-direction: column; vertical-align: middle;
+  margin-left: 4px; line-height: 7px; font-size: 8px;
+}
+.sort-arrows i { font-style: normal; color: #cbd5e1; }
+.sort-arrows i.on { color: #2563eb; }
