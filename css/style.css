@@ -59,6 +59,13 @@ header .updated { font-size: 12px; color: #cbd5e1; }
   cursor: pointer; color: #64748b; font-size: 16px; line-height: 1;
 }
 .chip .close:hover { color: #ef4444; }
+/* 拖拉調整順序 */
+.chips.sortable .chip { cursor: grab; user-select: none; }
+.chip .ord { font-size: 11px; color: #64748b; min-width: 1em; text-align: right; }
+.chip .grip { color: #94a3b8; font-size: 12px; letter-spacing: -2px; }
+.chip.drag-ghost { opacity: .35; background: #dbeafe; border-style: dashed; }
+.chip.drag-chosen { box-shadow: 0 2px 8px rgba(30, 64, 175, .25); cursor: grabbing; }
+.chips-tip { font-size: 12px; color: #94a3b8; margin-top: 4px; }
 
 .check {
   display: flex; align-items: center; gap: 6px;
@@ -97,8 +104,9 @@ header .updated { font-size: 12px; color: #cbd5e1; }
 #summary-table th:first-child, #summary-table td:first-child { text-align: left; }
 #summary-table th:nth-child(2), #summary-table td:nth-child(2) { text-align: left; }
 #summary-table tbody tr:hover { background: #fafbfc; }
-.pos { color: #059669; font-weight: 600; }
-.neg { color: #dc2626; font-weight: 600; }
+/* 台灣習慣：紅漲綠跌 */
+.pos { color: #dc2626; font-weight: 600; }
+.neg { color: #059669; font-weight: 600; }
 #summary-table tbody tr.missing-data { background-color: #fef3c7; }
 
 footer { padding: 12px 24px 24px; color: #6b7280; font-size: 12px; line-height: 1.6; }

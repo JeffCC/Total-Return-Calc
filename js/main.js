@@ -140,7 +140,23 @@
     sugg.classList.remove("hidden");
   }
 
-  input.addEventListener("input", e => renderSuggest(e.target.value));
+  // 多檔分隔：半形/全形逗號、頓號、空格
+  const SEP = /[\s,，、]+/;
+  // 把輸入框中的代碼逐一加入；all=false 時保留最後一段 (還在打字中)
+  function commitTokens(all) {
+    const parts = input.value.split(SEP);
+    const rest = all ? "" : parts.pop();
+    for (const p of parts.filter(Boolean)) {
+      if (addTicker(resolveCode(p)) === "full") break;
+    }
+    input.value = rest;
+  }
+
+  input.addEventListener("input", e => {
+    // 打到分隔符號時，前面的代碼直接加入 (中文輸入法組字中不處理)
+    if (!e.isComposing && SEP.test(input.value)) commitTokens(false);
+    renderSuggest(input.value);
+  });
   input.addEventListener("focus", e => renderSuggest(e.target.value));
   input.addEventListener("blur", () => setTimeout(() => sugg.classList.add("hidden"), 200));
   input.addEventListener("keydown", e => {
@@ -155,9 +171,8 @@
       e.preventDefault();
       if (!input.value.trim()) { run(); return; }
       // 支援一次貼上多檔：2330 0056,00878
-      const parts = input.value.split(/[\s,，、]+/).filter(Boolean);
-      if (parts.length > 1) {
-        parts.forEach(p => addTicker(resolveCode(p)));
+      if (SEP.test(input.value.trim())) {
+        commitTokens(true);
         clearInput();
       } else if (items[suggestActive]) {
         items[suggestActive].click();
@@ -196,7 +211,7 @@
 
   function addTicker(code) {
     if (!code || state.selected.includes(code)) return;
-    if (state.selected.length >= MAX_TICKERS) { alert(`最多 ${MAX_TICKERS} 檔`); return; }
+    if (state.selected.length >= MAX_TICKERS) { alert(`最多 ${MAX_TICKERS} 檔`); return "full"; }
     state.selected.push(code);
     renderChips();
     markDirty();
@@ -215,14 +230,31 @@
 
   function renderChips(status = {}) {
     const chips = $("selected-tickers");
-    chips.innerHTML = state.selected.map(code => `
-      <span class="chip ${status[code] || ""}" data-code="${code}" title="${escape(status[code + ":msg"] || "")}">
+    chips.innerHTML = state.selected.map((code, i) => `
+      <span class="chip ${status[code] || ""}" data-code="${code}" title="${escape(status[code + ":msg"] || "拖拉可調整順序")}">
+        <span class="grip">⋮⋮</span><span class="ord">${i + 1}.</span>
         ${code} ${escape(nameOf(code))}<span class="close" data-code="${code}">×</span>
       </span>`).join("");
     chips.querySelectorAll(".close").forEach(el => {
       el.addEventListener("click", () => removeTicker(el.dataset.code));
     });
+    $("chips-tip").classList.toggle("hidden", !(sortable && state.selected.length > 1));
   }
+
+  // 拖拉調整標的順序 (SortableJS；CDN 載入失敗時就只是不能拖拉)
+  const sortable = window.Sortable ? Sortable.create($("selected-tickers"), {
+    animation: 150,
+    filter: ".close", preventOnFilter: false,
+    delay: 150, delayOnTouchOnly: true,   // 手機上長按才拖拉，不影響捲動
+    ghostClass: "drag-ghost", chosenClass: "drag-chosen",
+    onEnd: () => {
+      const order = [...$("selected-tickers").children].map(el => el.dataset.code);
+      if (order.join() === state.selected.join()) return;
+      state.selected = order;
+      renderChips();
+      markDirty();
+    },
+  }) : null;
 
   // ---------------------------------------------------------------- 基準 / 區間
   for (const k of ["0050", "IR0001"]) {
@@ -257,7 +289,10 @@
     setRangeUI();
     if (state.selected.length) run();
   });
-  $("run").addEventListener("click", () => run());
+  $("run").addEventListener("click", () => {
+    if (input.value.trim()) { commitTokens(true); clearInput(); }  // 輸入框還有代碼 → 先加入
+    run();
+  });
 
   function computeRange() {
     if (state.range === "CUSTOM") return [state.customStart, state.customEnd];
@@ -282,6 +317,7 @@
 
     state.running = true;
     $("run").disabled = true;
+    if (sortable) sortable.option("disabled", true);
     const chipStatus = Object.fromEntries(codes.map(c => [c, "loading"]));
     renderChips(chipStatus);
     setHint(`下載 ${codes.length + benchCodes.length} 檔 ${start} ~ ${end} 資料中…`);
@@ -305,6 +341,7 @@
 
     state.running = false;
     $("run").disabled = false;
+    if (sortable) sortable.option("disabled", false);
     state.dirty = false;
 
     const ok = results.filter(r => !r.error && r.rows && r.rows.length >= 2);
