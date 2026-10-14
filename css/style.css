@@ -209,3 +209,4 @@ header .ver { font-size: 13px; font-weight: 600; color: #93c5fd; margin-left: 6p
   header .sub { display: block; margin-left: 0; margin-top: 2px; }
   .header-right { flex-wrap: wrap; gap: 2px 12px; white-space: normal; }
 }
+footer .method-note { color: #dc2626; font-weight: 600; }
