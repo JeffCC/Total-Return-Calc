@@ -201,11 +201,11 @@ footer a { color: #2563eb; }
 /* ---------------- 標題列：版本 + 網址 ---------------- */
 header { flex-wrap: wrap; gap: 4px 16px; }
 header .ver { font-size: 13px; font-weight: 600; color: #93c5fd; margin-left: 6px; }
-.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.header-right { display: flex; align-items: baseline; gap: 16px; white-space: nowrap; }
 .site-link { color: #93c5fd; font-size: 13px; text-decoration: none; word-break: break-all; }
 .site-link:hover { color: #bfdbfe; text-decoration: underline; }
 @media (max-width: 900px) {
   header { padding: 10px 16px; }
   header .sub { display: block; margin-left: 0; margin-top: 2px; }
-  .header-right { align-items: flex-start; }
+  .header-right { flex-wrap: wrap; gap: 2px 12px; white-space: normal; }
 }
