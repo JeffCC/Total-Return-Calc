@@ -299,7 +299,7 @@
     const end = new Date();
     let start;
     if (state.range === "YTD") {
-      start = new Date(end.getFullYear(), 0, 1);
+      start = new Date(end.getFullYear() - 1, 11, 31);  // 基準 = 去年最後一個交易日收盤
     } else {
       start = new Date(end);
       start.setMonth(start.getMonth() - (PRESET_MONTHS[state.range] || 12));
@@ -314,6 +314,10 @@
     if (!codes.length) { setHint("請先加入至少 1 檔標的", "err"); return; }
     const benchCodes = ["0050", "IR0001"].filter(k => state.benchmarks[k] && !codes.includes(k));
     const [start, end] = computeRange();
+    // 多抓起始日前 20 天，才找得到「起始日當天或之前的最後一個交易日」當基準 (涵蓋春節長假)
+    const fs = new Date(start + "T00:00:00");
+    fs.setDate(fs.getDate() - 20);
+    const fetchStart = iso(fs);
 
     state.running = true;
     $("run").disabled = true;
@@ -326,7 +330,7 @@
     const all = [...codes.map(c => ({ code: c, isBench: false })), ...benchCodes.map(c => ({ code: c, isBench: true }))];
     const results = await Promise.all(all.map(async item => {
       try {
-        const d = await api(`/api/series?code=${encodeURIComponent(item.code)}&start=${start}&end=${end}`);
+        const d = await api(`/api/series?code=${encodeURIComponent(item.code)}&start=${fetchStart}&end=${end}`);
         if (!item.isBench) { delete chipStatus[item.code]; renderChips(chipStatus); }
         return { ...d, isBench: item.isBench };
       } catch (e) {
@@ -393,8 +397,9 @@
     const summaryRows = [];
     let mainIdx = 0;
     for (const d of datasets) {
-      const sliced = Calc.slice(d.rows, start, end);
+      const sliced = Calc.sliceFromBase(d.rows, start, end);
       if (sliced.length < 2) continue;
+      const baseDate = sliced[0].d;
       const color = d.isBench ? (BENCH_COLORS[d.code] || "#94a3b8") : COLORS[mainIdx++ % COLORS.length];
       seriesList.push({
         name: `${d.code} ${d.name || ""}`.trim(),
@@ -403,8 +408,8 @@
       summaryRows.push({
         ...Calc.summarize(sliced),
         code: d.code, name: d.name, market: d.market, isBench: d.isBench,
-        events: d.events || [],
-        firstAvail: d.rows[0].d,
+        events: (d.events || []).filter(e => e.date > baseDate && e.date <= end),
+        firstAvail: baseDate,
       });
     }
     Chart.render(seriesList);

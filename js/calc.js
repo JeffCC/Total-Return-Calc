@@ -30,6 +30,17 @@ const Calc = (() => {
     return rows.slice(s, e + 1);
   }
 
+  // 區間切片 (以「起始日當天或之前的最後一個交易日」收盤為基準)
+  // 例：YTD 起始日 = 去年 12/31 → 基準為去年最後一個交易日收盤。
+  // 若起始日之前沒有資料 (區間內才上市)，則以第一筆資料為基準。
+  function sliceFromBase(rows, startStr, endStr) {
+    if (!rows || !rows.length) return [];
+    const s = Math.max(0, findEndIdx(rows, startStr));
+    const e = findEndIdx(rows, endStr);
+    if (s > e) return [];
+    return rows.slice(s, e + 1);
+  }
+
   // 計算 normalized 累積報酬序列：以區間第一筆 a 為基準 0%
   function cumReturnSeries(rows, useAdj = true) {
     if (!rows.length) return [];
@@ -96,5 +107,5 @@ const Calc = (() => {
     return [actualStart, end];
   }
 
-  return { slice, cumReturnSeries, summarize, rangeFromPreset, findStartIdx, findEndIdx };
+  return { slice, sliceFromBase, cumReturnSeries, summarize, rangeFromPreset, findStartIdx, findEndIdx };
 })();
